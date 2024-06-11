@@ -120,7 +120,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
      * @param cTokens The list of addresses of the cToken markets to be enabled
      * @return Success indicator for whether each corresponding market was entered
      */
-    function enterMarkets(address[] memory cTokens) public returns (uint[] memory) {
+    function enterMarkets(address[] memory cTokens) external returns (uint[] memory) {
         uint len = cTokens.length;
 
         uint[] memory results = new uint[](len);
@@ -679,7 +679,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
                 account liquidity in excess of collateral requirements,
      *          account shortfall below collateral requirements)
      */
-    function getAccountLiquidity(address account) public view returns (uint, uint, uint) {
+    function getAccountLiquidity(address account) external view returns (uint, uint, uint) {
         (Error err, uint liquidity, uint shortfall) = getHypotheticalAccountLiquidityInternal(account, CToken(0), 0, 0);
 
         return (uint(err), liquidity, shortfall);
@@ -709,7 +709,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
         address account,
         address cTokenModify,
         uint redeemTokens,
-        uint borrowAmount) public view returns (uint, uint, uint) {
+        uint borrowAmount) external view returns (uint, uint, uint) {
         (Error err, uint liquidity, uint shortfall) = getHypotheticalAccountLiquidityInternal(account, CToken(cTokenModify), redeemTokens, borrowAmount);
         return (uint(err), liquidity, shortfall);
     }
@@ -828,7 +828,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
      * @dev Admin function to set a new price oracle
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function _setRewardDistributor(address payable newRewardDistributor) public returns (uint) {
+    function _setRewardDistributor(address payable newRewardDistributor) external returns (uint) {
         if (msg.sender != admin) {
             return uint(Error.UNAUTHORIZED);
         }
@@ -850,7 +850,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
       * @dev Admin function to set a new price oracle
       * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
       */
-    function _setPriceOracle(PriceOracle newOracle) public returns (uint) {
+    function _setPriceOracle(PriceOracle newOracle) external returns (uint) {
         // Check caller is admin
         if (msg.sender != admin) {
             return fail(Error.UNAUTHORIZED, FailureInfo.SET_PRICE_ORACLE_OWNER_CHECK);
@@ -1054,7 +1054,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
      * @param newPauseGuardian The address of the new Pause Guardian
      * @return uint 0=success, otherwise a failure. (See enum Error for details)
      */
-    function _setPauseGuardian(address newPauseGuardian) public returns (uint) {
+    function _setPauseGuardian(address newPauseGuardian) external returns (uint) {
         if (msg.sender != admin) {
             return fail(Error.UNAUTHORIZED, FailureInfo.SET_PAUSE_GUARDIAN_OWNER_CHECK);
         }
@@ -1071,7 +1071,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
         return uint(Error.NO_ERROR);
     }
 
-    function _setMintPaused(CToken cToken, bool state) public returns (bool) {
+    function _setMintPaused(CToken cToken, bool state) external returns (bool) {
         require(markets[address(cToken)].isListed, "cannot pause a market that is not listed");
         require(msg.sender == pauseGuardian || msg.sender == admin, "only pause guardian and admin can pause");
         require(msg.sender == admin || state == true, "only admin can unpause");
@@ -1081,7 +1081,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
         return state;
     }
 
-    function _setBorrowPaused(CToken cToken, bool state) public returns (bool) {
+    function _setBorrowPaused(CToken cToken, bool state) external returns (bool) {
         require(markets[address(cToken)].isListed, "cannot pause a market that is not listed");
         require(msg.sender == pauseGuardian || msg.sender == admin, "only pause guardian and admin can pause");
         require(msg.sender == admin || state == true, "only admin can unpause");
@@ -1091,7 +1091,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
         return state;
     }
 
-    function _setTransferPaused(bool state) public returns (bool) {
+    function _setTransferPaused(bool state) external returns (bool) {
         require(msg.sender == pauseGuardian || msg.sender == admin, "only pause guardian and admin can pause");
         require(msg.sender == admin || state == true, "only admin can unpause");
 
@@ -1100,7 +1100,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
         return state;
     }
 
-    function _setSeizePaused(bool state) public returns (bool) {
+    function _setSeizePaused(bool state) external returns (bool) {
         require(msg.sender == pauseGuardian || msg.sender == admin, "only pause guardian and admin can pause");
         require(msg.sender == admin || state == true, "only admin can unpause");
 
@@ -1109,7 +1109,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
         return state;
     }
 
-    function _become(Unitroller unitroller) public {
+    function _become(Unitroller unitroller) external {
         require(msg.sender == unitroller.admin(), "only unitroller admin can change brains");
         require(unitroller._acceptImplementation() == 0, "change not authorized");
     }
@@ -1126,7 +1126,7 @@ contract Comptroller is ComptrollerV9Storage, ComptrollerInterface, ComptrollerE
      * @dev The automatic getter may be used to access an individual market.
      * @return The list of market addresses
      */
-    function getAllMarkets() public view returns (CToken[] memory) {
+    function getAllMarkets() external view returns (CToken[] memory) {
         return allMarkets;
     }
 
