@@ -103,9 +103,12 @@ contract RewardDistributor is RewardDistributorStorage, Exponential {
     event RewardGranted(uint8 rewardType, address recipient, uint256 amount);
 
     bool private initialized;
+    bool private _notEntered;
 
     constructor() public {
         admin = msg.sender;
+        // The counter starts true to prevent changing it from zero to non-zero (i.e. smaller cost/refund)
+        _notEntered = true;
     }
 
     function initialize() public {
@@ -362,7 +365,7 @@ contract RewardDistributor is RewardDistributorStorage, Exponential {
         CToken[] memory cTokens,
         bool borrowers,
         bool suppliers
-    ) public payable {
+    ) public payable nonReentrant {
         require(rewardType < rewardAddresses.length, "rewardType is invalid");
         for (uint256 i = 0; i < cTokens.length; i++) {
             CToken cToken = cTokens[i];
@@ -482,5 +485,11 @@ contract RewardDistributor is RewardDistributorStorage, Exponential {
 
     function getBlockTimestamp() public view returns (uint256) {
         return block.timestamp;
+    }
+    modifier nonReentrant() {
+        require(_notEntered, "re-entered");
+        _notEntered = false;
+        _;
+        _notEntered = true; // get a gas-refund post-Istanbul
     }
 }
